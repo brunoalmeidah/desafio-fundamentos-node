@@ -23,30 +23,45 @@ class TransactionsRepository {
   }
 
   public getBalance(): Balance {
-    const { value: income } = this.transactions.reduce(
-      ({ value: previousValue }, { type, value: currentValue }) => {
-        const value =
-          type === 'outcome' ? previousValue + currentValue : previousValue + 0;
+    if (this.transactions.length > 0) {
+      const { value: income } = this.transactions.reduce(
+        (previous, current) => {
+          if (previous.type === 'income') {
+            const value =
+              current.type === 'income'
+                ? previous.value + current.value
+                : previous.value + 0;
 
-        return new Transaction({ title: '', value, type: 'income' });
-      },
-    );
+            return new Transaction({ title: '', value, type: 'income' });
+          }
+          return new Transaction({ title: '', value: 0, type: 'income' });
+        },
+      );
 
-    const { value: outcome } = this.transactions.reduce(
-      ({ value: previousValue }, { type, value: currentValue }) => {
-        const value =
-          type === 'outcome' ? previousValue + currentValue : previousValue + 0;
+      const { value: outcome } = this.transactions.reduce(
+        (previous, current) => {
+          if (previous.type === 'outcome') {
+            const value =
+              current.type === 'outcome'
+                ? previous.value + current.value
+                : previous.value + 0;
 
-        return new Transaction({ title: '', value, type: 'outcome' });
-      },
-    );
-
-    const total = income - outcome;
-
+            return new Transaction({ title: '', value, type: 'outcome' });
+          }
+          return new Transaction({ title: '', value: 0, type: 'outcome' });
+        },
+      );
+      const total = income - outcome;
+      return {
+        income,
+        outcome,
+        total,
+      };
+    }
     return {
-      income,
-      outcome,
-      total,
+      income: 0,
+      outcome: 0,
+      total: 0,
     };
   }
 
